@@ -1,0 +1,6 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/cd-janz/FlowMind-Backend.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/cd-janz/FlowMind-Frontend.git
