@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: flowmindDB
-    image: postgres:17
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: postgres
@@ -20,7 +20,7 @@ services:
 
   rabbitmq:
     container_name: flowmindRMQ
-    image: rabbitmq:4.0
+    image: rabbitmq:4.0-management
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: rabbitmq
@@ -38,7 +38,7 @@ services:
 
   redis:
     container_name: flowmindRDB
-    image: redis:8.0
+    image: redis:7.2-alpine
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
@@ -50,6 +50,25 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+
+  backend:
+    container_name: flowmindBND
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://flowmindDB:5432/flowmind
+      - SPRING_RABBITMQ_HOST=flowmindRMQ
+      - SPRING_DATA_REDIS_HOST=flowmindRDB
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
